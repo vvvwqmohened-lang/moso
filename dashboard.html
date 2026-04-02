@@ -1,0 +1,1992 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم المتطورة</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Google Fonts: Cairo -->
+     <link rel="canonical" href="https://mohannad.dev">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>M</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #60a5fa;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1e293b;
+            --gray: #64748b;
+            --light: #f1f5f9;
+            --white: #ffffff;
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            --transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #60a5fa;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #f1f5f9;
+            --gray: #94a3b8;
+            --light: #1e293b;
+            --white: #0f172a;
+            --bg: #0b1120;
+            --card-bg: #162032;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background: var(--light);
+            color: var(--dark);
+            transition: var(--transition);
+        }
+
+        /* ========== القائمة الجانبية ========== */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            right: 0;
+            top: 0;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            text-align: center;
+            padding: 30px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-info {
+            text-align: center;
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-info .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--primary);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .user-info h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .user-info .role-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 25px;
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: var(--transition);
+            border-right: 4px solid transparent;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav li.active a {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-right-color: var(--primary);
+        }
+
+        .sidebar-nav a i {
+            width: 20px;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-nav .badge {
+            background: var(--danger);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-right: auto;
+        }
+
+        .logout-btn {
+            margin: 20px;
+            padding: 12px;
+            background: rgba(239, 68, 68, 0.2);
+            border: none;
+            color: #ef4444;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1rem;
+            width: calc(100% - 40px);
+        }
+
+        .logout-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        /* ========== المحتوى الرئيسي ========== */
+        .main-content {
+            margin-right: var(--sidebar-width);
+            min-height: 100vh;
+            transition: var(--transition);
+            padding: 20px;
+        }
+
+        /* الهيدر */
+        .header {
+            background: var(--white);
+            padding: 15px 25px;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h2 {
+            font-size: 1.5rem;
+            color: var(--dark);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .theme-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--gray);
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .notifications {
+            position: relative;
+            cursor: pointer;
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .notifications:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .notifications i {
+            font-size: 1.3rem;
+            color: var(--gray);
+            transition: all 0.3s ease;
+        }
+
+        .notifications:hover i {
+            color: white;
+        }
+
+        .notifications .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            min-width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            box-shadow: 0 2px 5px rgba(239, 68, 68, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
+
+        .notifications.has-new i {
+            animation: shake 0.5s ease infinite;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: rotate(0);
+            }
+
+            25% {
+                transform: rotate(10deg);
+            }
+
+            75% {
+                transform: rotate(-10deg);
+            }
+        }
+
+        .notifications-dropdown {
+            position: absolute;
+            top: 55px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-10px);
+            width: 320px;
+            background: var(--white);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .notifications:hover .notifications-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .dropdown-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dropdown-header h4 {
+            font-size: 1rem;
+            color: var(--dark);
+        }
+
+        .dropdown-header span {
+            color: var(--primary);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .dropdown-header span:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .dropdown-body {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 5px 0;
+        }
+
+        .notification-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--light);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .notification-item:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .notification-item.unread {
+            background: #eff6ff;
+        }
+
+        [data-theme="dark"] .notification-item.unread {
+            background: #1e3a5f;
+        }
+
+        .notification-item:hover .notification-title,
+        .notification-item:hover .notification-time {
+            color: white;
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .notification-item:hover .notification-icon {
+            background: white !important;
+            color: var(--primary) !important;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 3px;
+        }
+
+        .notification-time {
+            font-size: 0.7rem;
+            color: var(--gray);
+        }
+
+        .dropdown-footer {
+            padding: 12px;
+            text-align: center;
+            border-top: 1px solid var(--light);
+        }
+
+        .dropdown-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .dropdown-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .no-notifications {
+            padding: 20px;
+            text-align: center;
+            color: var(--gray);
+        }
+
+        .profile-dropdown {
+            position: relative;
+        }
+
+        .profile-dropdown .profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--light);
+            padding: 5px 15px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .profile-dropdown .profile-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .profile-dropdown img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            background: var(--white);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 200px;
+            padding: 10px 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            z-index: 10;
+        }
+
+        .profile-dropdown:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .dropdown-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            color: var(--dark);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .dropdown-menu a:hover {
+            background: var(--light);
+        }
+
+        /* بطاقات الإحصائيات */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-info h3 {
+            font-size: 1rem;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+
+        .stat-info .number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .stat-icon.blue {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .stat-icon.green {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .stat-icon.purple {
+            background: #ede9fe;
+            color: #7c3aed;
+        }
+
+        .stat-icon.orange {
+            background: #ffedd5;
+            color: #ea580c;
+        }
+
+        /* الرسوم البيانية */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .chart-header h3 {
+            font-size: 1.1rem;
+        }
+
+        .chart-container {
+            height: 250px;
+            position: relative;
+        }
+
+        /* الأقسام */
+        .section-card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-header h3 {
+            font-size: 1.3rem;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            padding: 5px 15px;
+            border: 1px solid var(--gray);
+            border-radius: 20px;
+            background: transparent;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* الجداول */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: right;
+            padding: 15px;
+            background: var(--light);
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid var(--light);
+        }
+
+        tr:hover {
+            background: var(--light);
+        }
+
+        tr.unread {
+            background: #eff6ff;
+            font-weight: 600;
+        }
+
+        [data-theme="dark"] tr.unread {
+            background: #1e3a5f;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .status-active {
+            background: #10b981;
+        }
+
+        .status-pending {
+            background: #f59e0b;
+        }
+
+        .status-completed {
+            background: #2563eb;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            color: white;
+        }
+
+        .view-btn {
+            background: #2563eb;
+        }
+
+        .edit-btn {
+            background: #10b981;
+        }
+
+        .delete-btn {
+            background: #ef4444;
+        }
+
+        .reply-btn {
+            background: #f59e0b;
+        }
+
+        /* النوافذ المنبثقة */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--light);
+            border-radius: 8px;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* لوحة التنبيهات */
+        .alerts-container {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 2000;
+        }
+
+        .alert {
+            background: white;
+            color: var(--dark);
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .alert.success {
+            border-right: 4px solid #10b981;
+        }
+
+        .alert.error {
+            border-right: 4px solid #ef4444;
+        }
+
+        .alert.warning {
+            border-right: 4px solid #f59e0b;
+        }
+
+        .alert.info {
+            border-right: 4px solid #2563eb;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* متجاوب */
+        @media (max-width: 992px) {
+            .sidebar {
+                right: -280px;
+            }
+
+            .sidebar.active {
+                right: 0;
+            }
+
+            .main-content {
+                margin-right: 0;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="alerts-container" id="alertsContainer"></div>
+
+    <!-- القائمة الجانبية -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo">لوحة التحكم</div>
+        <div class="user-info">
+            <div class="avatar" id="userAvatar">م</div>
+            <h4 id="userName">مهند الخضر</h4>
+            <span class="role-badge" id="userRole">مدير</span>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="active"><a href="#" onclick="showSection('dashboard')"><i class="fas fa-home"></i>
+                        الرئيسية</a></li>
+                <li><a href="#" onclick="showSection('users')"><i class="fas fa-users"></i> المستخدمون</a></li>
+                <li><a href="#" onclick="showSection('messages')"><i class="fas fa-envelope"></i> الرسائل <span
+                            class="badge" id="unreadCount">0</span></a></li>
+                <li><a href="#" onclick="showSection('projects')"><i class="fas fa-project-diagram"></i> المشاريع</a>
+                </li>
+                <li><a href="#" onclick="showSection('activity')"><i class="fas fa-history"></i> سجل النشاطات</a></li>
+                <li><a href="#" onclick="showSection('settings')"><i class="fas fa-cog"></i> الإعدادات</a></li>
+            </ul>
+        </nav>
+        <button class="logout-btn" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+        </button>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="main-content">
+        <header class="header">
+            <h2>مرحباً بك، <span id="headerName"></span></h2>
+            <div class="header-left">
+                <div class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </div>
+                <div class="notifications" id="notificationsBell">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge" id="notificationCount">0</span>
+                    <!-- القائمة المنسدلة للإشعارات -->
+                    <div class="notifications-dropdown" id="notificationsDropdown">
+                        <div class="dropdown-header">
+                            <h4>الإشعارات</h4>
+                            <span id="markAllRead" style="cursor:pointer; font-size:0.8rem;">تحديد الكل كمقروء</span>
+                        </div>
+                        <div class="dropdown-body" id="notificationsList">
+                            <!-- ستتم تعبئتها عبر JS -->
+                        </div>
+                        <div class="dropdown-footer">
+                            <a href="#" onclick="showSection('messages'); return false;">عرض جميع الرسائل</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-dropdown">
+                    <div class="profile-btn">
+                        <img src="mo.png" alt="صورة شخصية">
+                        <span id="headerUserName">مهند الخضر</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="dropdown-menu">
+                        <a href="#"><i class="fas fa-user"></i> الملف الشخصي</a>
+                        <a href="#" onclick="showSection('settings')"><i class="fas fa-cog"></i> الإعدادات</a>
+                        <a href="login.html" onclick="logout()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- الأقسام القابلة للتبديل -->
+        <div id="dashboardSection">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3>إجمالي المستخدمين</h3>
+                        <div class="number" id="totalUsers">0</div>
+                    </div>
+                    <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3>الرسائل الجديدة</h3>
+                        <div class="number" id="unreadMessages">0</div>
+                    </div>
+                    <div class="stat-icon green"><i class="fas fa-envelope"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3>المشاريع</h3>
+                        <div class="number" id="totalProjects">0</div>
+                    </div>
+                    <div class="stat-icon purple"><i class="fas fa-project-diagram"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3>النشاطات اليوم</h3>
+                        <div class="number" id="todayActivities">0</div>
+                    </div>
+                    <div class="stat-icon orange"><i class="fas fa-history"></i></div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>نشاط المستخدمين</h3>
+                        <select id="activityChartPeriod">
+                            <option value="7">آخر 7 أيام</option>
+                            <option value="30">آخر 30 يوم</option>
+                        </select>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="activityChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>توزيع المشاريع</h3>
+                        <select id="projectChartPeriod">
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                        </select>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="projectChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- قسم المستخدمين -->
+        <div id="usersSection" style="display: none;">
+            <div class="section-card">
+                <div class="section-header">
+                    <h3>إدارة المستخدمين</h3>
+                    <div style="display: flex; gap: 10px;">
+                        <div class="filter-group" style="margin-left: 15px;">
+                            <button class="filter-btn active" onclick="filterUsers('all')">جميع المستخدمين</button>
+                            <button class="filter-btn" onclick="filterUsers('admin')">المدراء</button>
+                            <button class="filter-btn" onclick="filterUsers('moderator')">المشرفين</button>
+                            <button class="filter-btn" onclick="filterUsers('user')">المستخدمين</button>
+                        </div>
+                        <button class="btn btn-primary" onclick="openAddUserModal()"><i class="fas fa-plus"></i> إضافة
+                            مستخدم</button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>الاسم</th>
+                                <th>اسم المستخدم</th>
+                                <th>البريد</th>
+                                <th>الدور</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- قسم الرسائل -->
+        <div id="messagesSection" style="display: none;">
+            <div class="section-card">
+                <div class="section-header">
+                    <h3>الرسائل الواردة</h3>
+                    <div class="filter-group">
+                        <button class="filter-btn active" onclick="filterMessages('all')">الكل</button>
+                        <button class="filter-btn" onclick="filterMessages('unread')">غير مقروء</button>
+                        <button class="filter-btn" onclick="filterMessages('read')">مقروء</button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>الحالة</th>
+                                <th>المرسل</th>
+                                <th>البريد</th>
+                                <th>الموضوع</th>
+                                <th>التاريخ</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="messagesTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- قسم المشاريع -->
+        <div id="projectsSection" style="display: none;">
+            <div class="section-card">
+                <div class="section-header">
+                    <h3>إدارة المشاريع</h3>
+                    <button class="btn btn-primary" onclick="openAddProjectModal()"><i class="fas fa-plus"></i> إضافة
+                        مشروع</button>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>صورة</th>
+                                <th>اسم المشروع</th>
+                                <th>التقنيات</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projectsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- قسم سجل النشاطات -->
+        <div id="activitySection" style="display: none;">
+            <div class="section-card">
+                <h3>سجل النشاطات</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>المستخدم</th>
+                                <th>الإجراء</th>
+                                <th>التفاصيل</th>
+                                <th>التاريخ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activityTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- قسم الإعدادات -->
+        <div id="settingsSection" style="display: none;">
+            <div class="section-card">
+                <h3>إعدادات الموقع</h3>
+                <form id="settingsForm">
+                    <div class="form-group">
+                        <label>اسم الموقع</label>
+                        <input type="text" id="siteName" value="مهند الخضر">
+                    </div>
+                    <div class="form-group">
+                        <label>البريد الإلكتروني للإشعارات</label>
+                        <input type="email" id="notificationEmail" value="admin@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>الوضع الافتراضي</label>
+                        <select id="defaultTheme">
+                            <option value="light">فاتح</option>
+                            <option value="dark">داكن</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">حفظ الإعدادات</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- مودال عرض الرسالة -->
+    <div class="modal-overlay" id="messageModal">
+        <div class="modal-content">
+            <h3 id="modalSubject"></h3>
+            <p><strong>من:</strong> <span id="modalName"></span> (<span id="modalEmail"></span>)</p>
+            <p><strong>التاريخ:</strong> <span id="modalDate"></span></p>
+            <hr>
+            <p id="modalMessage"></p>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-primary" onclick="replyToCurrentMessage()"><i class="fas fa-reply"></i>
+                    رد</button>
+                <button class="btn btn-outline" onclick="closeModal()">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال الرد -->
+    <div class="modal-overlay" id="replyModal">
+        <div class="modal-content">
+            <h3>الرد على الرسالة</h3>
+            <form id="replyForm">
+                <div class="form-group">
+                    <label>إلى</label>
+                    <input type="email" id="replyToEmail" readonly>
+                </div>
+                <div class="form-group">
+                    <label>الموضوع</label>
+                    <input type="text" id="replySubject" readonly>
+                </div>
+                <div class="form-group">
+                    <label>الرسالة الأصلية</label>
+                    <textarea id="originalMessage" rows="3" readonly></textarea>
+                </div>
+                <div class="form-group">
+                    <label>نص الرد</label>
+                    <textarea id="replyMessage" rows="5" placeholder="اكتب ردك هنا..." required></textarea>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary" style="flex:1;">إرسال</button>
+                    <button type="button" class="btn btn-outline" onclick="closeReplyModal()"
+                        style="flex:1;">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- مودال إضافة/تعديل مستخدم -->
+    <div class="modal-overlay" id="userModal">
+        <div class="modal-content">
+            <h3 id="userModalTitle">إضافة مستخدم جديد</h3>
+            <form id="userForm">
+                <input type="hidden" id="userId">
+                <div class="form-group">
+                    <label>الاسم الكامل</label>
+                    <input type="text" id="userFullname" required>
+                </div>
+                <div class="form-group">
+                    <label>اسم المستخدم</label>
+                    <input type="text" id="userUsername" required>
+                </div>
+                <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" id="userEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="userPassword" placeholder="اترك فارغاً إذا لم ترد التغيير">
+                </div>
+                <div class="form-group">
+                    <label>الدور</label>
+                    <select id="userRole">
+                        <option value="admin">مدير</option>
+                        <option value="moderator">مشرف</option>
+                        <option value="user">مستخدم</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary" style="flex:1;">حفظ</button>
+                    <button type="button" class="btn btn-outline" onclick="closeUserModal()"
+                        style="flex:1;">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- مودال إضافة/تعديل مشروع -->
+    <div class="modal-overlay" id="projectModal">
+        <div class="modal-content">
+            <h3 id="projectModalTitle">إضافة مشروع جديد</h3>
+            <form id="projectForm">
+                <input type="hidden" id="projectId">
+                <div class="form-group">
+                    <label>اسم المشروع</label>
+                    <input type="text" id="projectTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>الوصف</label>
+                    <textarea id="projectDesc" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>صورة (رابط)</label>
+                    <input type="url" id="projectImage" placeholder="https://..." required>
+                </div>
+                <div class="form-group">
+                    <label>التقنيات (مفصولة بفواصل)</label>
+                    <input type="text" id="projectTech" placeholder="React, Node.js, MongoDB" required>
+                </div>
+                <div class="form-group">
+                    <label>الحالة</label>
+                    <select id="projectStatus">
+                        <option value="active">نشط</option>
+                        <option value="completed">مكتمل</option>
+                        <option value="pending">معلق</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary" style="flex:1;">حفظ</button>
+                    <button type="button" class="btn btn-outline" onclick="closeProjectModal()"
+                        style="flex:1;">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- مودال تأكيد العمليات -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h3>تأكيد العملية</h3>
+            <p id="confirmMessage">هل أنت متأكد من تنفيذ هذه العملية؟</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button class="btn btn-danger" id="confirmYes">نعم</button>
+                <button class="btn btn-primary" id="confirmNo">إلغاء</button>
+            </div>
+        </div>
+    </div>
+    <script src="script (2).js"></script>
+
+
+    <script>
+        (function () {
+            // ========== دوال التخزين المحلي ==========
+            function getUsers() {
+                return JSON.parse(localStorage.getItem('users')) || [];
+            }
+            function saveUsers(users) {
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+            function getMessages() {
+                return JSON.parse(localStorage.getItem('contactMessages')) || [];
+            }
+            function saveMessages(messages) {
+                localStorage.setItem('contactMessages', JSON.stringify(messages));
+            }
+            function getProjects() {
+                return JSON.parse(localStorage.getItem('projects')) || [];
+            }
+            function saveProjects(projects) {
+                localStorage.setItem('projects', JSON.stringify(projects));
+            }
+            function getActivities() {
+                return JSON.parse(localStorage.getItem('activities')) || [];
+            }
+            function saveActivities(activities) {
+                localStorage.setItem('activities', JSON.stringify(activities));
+            }
+            function getCurrentUser() {
+                const local = localStorage.getItem('currentUser');
+                const session = sessionStorage.getItem('currentUser');
+                if (local) return JSON.parse(local);
+                if (session) return JSON.parse(session);
+                return null;
+            }
+            function logout() {
+                localStorage.removeItem('currentUser');
+                sessionStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+            }
+
+            // ========== تهيئة البيانات الافتراضية ==========
+            (function initData() {
+                if (getUsers().length === 0) {
+                    saveUsers([
+                        { id: 1, fullname: 'مدير النظام', username: 'admin', email: 'admin@example.com', password: 'admin123', role: 'admin', verified: true, createdAt: new Date().toISOString() },
+                        { id: 2, fullname: 'مشرف عام', username: 'moderator', email: 'mod@example.com', password: 'mod123', role: 'moderator', verified: true, createdAt: new Date().toISOString() },
+                        { id: 3, fullname: 'مستخدم عادي', username: 'user', email: 'user@example.com', password: 'user123', role: 'user', verified: true, createdAt: new Date().toISOString() }
+                    ]);
+                }
+                if (getMessages().length === 0) {
+                    saveMessages([
+                        { id: 1001, name: 'أحمد علي', email: 'ahmed@example.com', subject: 'استفسار', message: 'أرغب في معرفة المزيد عن خدماتكم', date: new Date().toLocaleString('ar-EG'), read: false },
+                        { id: 1002, name: 'سارة محمد', email: 'sara@example.com', subject: 'طلب تعاون', message: 'نحن شركة ناشئة ونرغب في التعاون', date: new Date().toLocaleString('ar-EG'), read: true }
+                    ]);
+                }
+                if (getProjects().length === 0) {
+                    saveProjects([
+                        { id: 1, title: 'منصة تعليمية', description: 'منصة تفاعلية للتعليم عن بعد', image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=400', tech: ['React', 'Node.js', 'MongoDB'], status: 'active' },
+                        { id: 2, title: 'متجر إلكتروني', description: 'متجر متكامل مع سلة دفع', image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400', tech: ['Vue.js', 'Express', 'PostgreSQL'], status: 'completed' }
+                    ]);
+                }
+                if (getActivities().length === 0) {
+                    saveActivities([
+                        { user: 'admin', action: 'تسجيل دخول', details: 'من IP 192.168.1.1', date: new Date().toLocaleString('ar-EG') },
+                        { user: 'admin', action: 'إضافة مستخدم', details: 'تمت إضافة مستخدم جديد', date: new Date().toLocaleString('ar-EG') }
+                    ]);
+                }
+            })();
+
+            // ========== التحقق من تسجيل الدخول ==========
+            const currentUser = getCurrentUser();
+            if (!currentUser) window.location.href = 'login.html';
+            if (currentUser.role === 'user') window.location.href = 'index.html';
+
+            // ========== عرض بيانات المستخدم ==========
+            document.getElementById('userName').textContent = currentUser.fullname;
+            document.getElementById('headerName').textContent = currentUser.fullname;
+            document.getElementById('headerUserName').textContent = currentUser.fullname;
+            document.getElementById('userAvatar').textContent = currentUser.fullname.charAt(0);
+            const roleBadge = document.getElementById('userRole');
+            roleBadge.textContent = currentUser.role === 'admin' ? 'مدير' : 'مشرف';
+            roleBadge.style.background = currentUser.role === 'admin' ? '#ef4444' : '#f59e0b';
+
+            // ========== الوضع المظلم ==========
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = themeToggle.querySelector('i');
+            if (localStorage.getItem('theme') === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'fas fa-sun';
+            }
+            themeToggle.addEventListener('click', () => {
+                const isDark = document.documentElement.hasAttribute('data-theme');
+                if (isDark) {
+                    document.documentElement.removeAttribute('data-theme');
+                    themeIcon.className = 'fas fa-moon';
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    themeIcon.className = 'fas fa-sun';
+                    localStorage.setItem('theme', 'dark');
+                }
+            });
+
+            // ========== الرسوم البيانية ==========
+            let activityChart, projectChart;
+            function initCharts() {
+                const ctx1 = document.getElementById('activityChart').getContext('2d');
+                activityChart = new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'],
+                        datasets: [{
+                            label: 'الزيارات',
+                            data: [65, 78, 82, 91, 88, 95, 70],
+                            borderColor: '#2563eb',
+                            backgroundColor: 'rgba(37,99,235,0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+                const ctx2 = document.getElementById('projectChart').getContext('2d');
+                projectChart = new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['مكتمل', 'قيد التنفيذ', 'معلق'],
+                        datasets: [{
+                            data: [12, 19, 3],
+                            backgroundColor: ['#10b981', '#2563eb', '#f59e0b']
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '70%' }
+                });
+            }
+
+            // ========== عرض الأقسام ==========
+            window.showSection = function (section) {
+                document.querySelectorAll('.main-content > div[id$="Section"]').forEach(div => div.style.display = 'none');
+                document.getElementById(section + 'Section').style.display = 'block';
+                document.querySelectorAll('.sidebar-nav li').forEach(li => li.classList.remove('active'));
+                event.target.closest('li').classList.add('active');
+                if (section === 'messages') renderMessages();
+                if (section === 'users') renderUsers();
+                if (section === 'projects') renderProjects();
+                if (section === 'activity') renderActivities();
+            };
+
+            // ========== الإحصائيات ==========
+            function updateStats() {
+                document.getElementById('totalUsers').textContent = getUsers().length;
+                const unread = getMessages().filter(m => !m.read).length;
+                document.getElementById('unreadMessages').textContent = unread;
+                document.getElementById('unreadCount').textContent = unread;
+                document.getElementById('notificationCount').textContent = unread;
+                document.getElementById('totalProjects').textContent = getProjects().length;
+                document.getElementById('todayActivities').textContent = getActivities().length;
+            }
+
+            // ========== نظام التنبيهات ==========
+            function showAlert(message, type = 'info') {
+                const container = document.getElementById('alertsContainer');
+                const alert = document.createElement('div');
+                alert.className = `alert ${type}`;
+                alert.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${message}`;
+                container.appendChild(alert);
+                setTimeout(() => alert.remove(), 4000);
+            }
+            window.showAlert = showAlert;
+
+            // ========== تصفية المستخدمين ==========
+            let currentUserFilter = 'all';
+
+            window.filterUsers = function (filter) {
+                currentUserFilter = filter;
+                document.querySelectorAll('#usersSection .filter-btn').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+                renderUsers();
+            };
+
+            // ========== إدارة المستخدمين ==========
+            function renderUsers() {
+                const users = getUsers();
+                let filteredUsers = users;
+                if (currentUserFilter !== 'all') {
+                    filteredUsers = users.filter(u => u.role === currentUserFilter);
+                }
+
+                const tbody = document.getElementById('usersTableBody');
+                tbody.innerHTML = '';
+                filteredUsers.forEach(user => {
+                    const tr = document.createElement('tr');
+                    let actions = '';
+
+                    if (currentUser.role === 'admin' && user.id !== currentUser.id) {
+                        actions = `
+                            <div class="action-btns">
+                                <button class="action-btn edit-btn" onclick="openEditUserModal(${user.id})" title="تعديل البيانات"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn" style="background:#ef4444;" onclick="changeUserRole(${user.id}, 'admin')" title="تعيين كمدير"><i class="fas fa-crown"></i></button>
+                                <button class="action-btn" style="background:#f59e0b;" onclick="changeUserRole(${user.id}, 'moderator')" title="تعيين كمشرف"><i class="fas fa-user-tie"></i></button>
+                                <button class="action-btn" style="background:#10b981;" onclick="changeUserRole(${user.id}, 'user')" title="تعيين كمستخدم"><i class="fas fa-user"></i></button>
+                                <button class="action-btn delete-btn" onclick="deleteUser(${user.id})"><i class="fas fa-trash"></i></button>
+                            </div>
+                        `;
+                    } else if (currentUser.role === 'moderator' && user.role !== 'admin' && user.id !== currentUser.id) {
+                        actions = `
+                            <div class="action-btns">
+                                <button class="action-btn edit-btn" onclick="openEditUserModal(${user.id})" title="تعديل البيانات"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn" style="background:#f59e0b;" onclick="changeUserRole(${user.id}, 'moderator')" title="تعيين كمشرف"><i class="fas fa-user-tie"></i></button>
+                                <button class="action-btn" style="background:#10b981;" onclick="changeUserRole(${user.id}, 'user')" title="تعيين كمستخدم"><i class="fas fa-user"></i></button>
+                            </div>
+                        `;
+                    } else if (user.id === currentUser.id) {
+                        actions = `<span style="color:var(--gray);">لا يمكن تعديل نفسك</span>`;
+                    } else {
+                        actions = `<span style="color:var(--gray);">لا توجد صلاحية</span>`;
+                    }
+
+                    tr.innerHTML = `
+                        <td>${user.fullname}</td>
+                        <td>${user.username || ''}</td>
+                        <td>${user.email}</td>
+                        <td><span class="status-badge" style="background:${user.role === 'admin' ? '#ef4444' : user.role === 'moderator' ? '#f59e0b' : '#10b981'}">${user.role === 'admin' ? 'مدير' : user.role === 'moderator' ? 'مشرف' : 'مستخدم'}</span></td>
+                        <td><span class="status-badge ${user.verified ? 'status-active' : 'status-pending'}">${user.verified ? 'موثق' : 'غير موثق'}</span></td>
+                        <td>${actions}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            let pendingUserAction = null;
+
+            window.changeUserRole = function (userId, newRole) {
+                const users = getUsers();
+                const user = users.find(u => u.id === userId);
+                if (!user) return;
+
+                const roleNames = { admin: 'مدير', moderator: 'مشرف', user: 'مستخدم' };
+                document.getElementById('confirmMessage').textContent =
+                    `هل أنت متأكد من تغيير دور ${user.fullname} إلى ${roleNames[newRole]}؟`;
+
+                pendingUserAction = { userId, newRole };
+                document.getElementById('confirmModal').classList.add('show');
+            };
+
+            window.openAddUserModal = function () {
+                document.getElementById('userModalTitle').textContent = 'إضافة مستخدم جديد';
+                document.getElementById('userForm').reset();
+                document.getElementById('userId').value = '';
+                document.getElementById('userModal').classList.add('show');
+            };
+
+            window.openEditUserModal = function (id) {
+                const user = getUsers().find(u => u.id === id);
+                if (!user) return;
+                document.getElementById('userModalTitle').textContent = 'تعديل المستخدم';
+                document.getElementById('userId').value = user.id;
+                document.getElementById('userFullname').value = user.fullname;
+                document.getElementById('userUsername').value = user.username;
+                document.getElementById('userEmail').value = user.email;
+                document.getElementById('userRole').value = user.role;
+                document.getElementById('userPassword').value = '';
+                document.getElementById('userModal').classList.add('show');
+            };
+
+            window.closeUserModal = function () {
+                document.getElementById('userModal').classList.remove('show');
+            };
+
+            document.getElementById('userForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const id = document.getElementById('userId').value;
+                const users = getUsers();
+                const fullname = document.getElementById('userFullname').value.trim();
+                const username = document.getElementById('userUsername').value.trim();
+                const email = document.getElementById('userEmail').value.trim();
+                const role = document.getElementById('userRole').value;
+                const password = document.getElementById('userPassword').value.trim();
+
+                if (id) {
+                    const user = users.find(u => u.id == id);
+                    if (user) {
+                        user.fullname = fullname;
+                        user.username = username;
+                        user.email = email;
+                        user.role = role;
+                        if (password) user.password = password;
+                    }
+                    showAlert('تم تحديث المستخدم بنجاح', 'success');
+                } else {
+                    if (users.some(u => u.username === username || u.email === email)) {
+                        showAlert('اسم المستخدم أو البريد موجود مسبقاً', 'error');
+                        return;
+                    }
+                    const newUser = {
+                        id: Date.now(),
+                        fullname,
+                        username,
+                        email,
+                        password: password || '123456',
+                        role,
+                        verified: true,
+                        createdAt: new Date().toISOString()
+                    };
+                    users.push(newUser);
+                    showAlert('تم إضافة المستخدم بنجاح', 'success');
+                }
+                saveUsers(users);
+                renderUsers();
+                updateStats();
+                renderNotifications();
+                closeUserModal();
+            });
+
+            window.deleteUser = function (id) {
+                const users = getUsers();
+                const user = users.find(u => u.id === id);
+                if (!user) return;
+                document.getElementById('confirmMessage').textContent = `هل أنت متأكد من حذف المستخدم ${user.fullname}؟`;
+                pendingUserAction = { action: 'deleteUser', userId: id };
+                document.getElementById('confirmModal').classList.add('show');
+            };
+
+            // ========== إدارة الرسائل ==========
+            let currentFilter = 'all';
+            window.filterMessages = function (filter) {
+                currentFilter = filter;
+                document.querySelectorAll('#messagesSection .filter-btn').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+                renderMessages();
+            };
+
+            function renderMessages() {
+                const messages = getMessages();
+                const tbody = document.getElementById('messagesTableBody');
+                tbody.innerHTML = '';
+                let filtered = messages;
+                if (currentFilter === 'unread') filtered = messages.filter(m => !m.read);
+                if (currentFilter === 'read') filtered = messages.filter(m => m.read);
+                filtered.sort((a, b) => b.id - a.id).forEach(msg => {
+                    const tr = document.createElement('tr');
+                    tr.className = msg.read ? '' : 'unread';
+                    tr.innerHTML = `
+                        <td><span class="status-badge" style="background:${msg.read ? '#94a3b8' : '#2563eb'}">${msg.read ? 'مقروء' : 'جديد'}</span></td>
+                        <td>${msg.name}</td>
+                        <td>${msg.email}</td>
+                        <td>${msg.subject}</td>
+                        <td>${msg.date}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn view-btn" onclick="viewMessage(${msg.id})"><i class="fas fa-eye"></i></button>
+                                <button class="action-btn reply-btn" onclick="replyToMessage(${msg.id})"><i class="fas fa-reply"></i></button>
+                                ${currentUser.role === 'admin' ? `<button class="action-btn delete-btn" onclick="deleteMessage(${msg.id})"><i class="fas fa-trash"></i></button>` : ''}
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                updateStats();
+                renderNotifications();
+            }
+
+            window.viewMessage = function (id) {
+                const messages = getMessages();
+                const msg = messages.find(m => m.id === id);
+                if (!msg) return;
+                document.getElementById('modalSubject').textContent = msg.subject;
+                document.getElementById('modalName').textContent = msg.name;
+                document.getElementById('modalEmail').textContent = msg.email;
+                document.getElementById('modalDate').textContent = msg.date;
+                document.getElementById('modalMessage').textContent = msg.message;
+                document.getElementById('messageModal').classList.add('show');
+                if (!msg.read) {
+                    msg.read = true;
+                    saveMessages(messages);
+                    renderMessages();
+                    renderNotifications();
+                }
+            };
+
+            window.closeModal = function () {
+                document.getElementById('messageModal').classList.remove('show');
+            };
+
+            window.replyToMessage = function (id) {
+                const messages = getMessages();
+                const msg = messages.find(m => m.id === id);
+                if (!msg) return;
+                document.getElementById('replyToEmail').value = msg.email;
+                document.getElementById('replySubject').value = `رد: ${msg.subject}`;
+                document.getElementById('originalMessage').value = msg.message;
+                document.getElementById('replyModal').classList.add('show');
+            };
+
+            window.closeReplyModal = function () {
+                document.getElementById('replyModal').classList.remove('show');
+            };
+
+            document.getElementById('replyForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const to = document.getElementById('replyToEmail').value;
+                const subject = encodeURIComponent(document.getElementById('replySubject').value);
+                const body = encodeURIComponent(
+                    `الرسالة الأصلية:\n${document.getElementById('originalMessage').value}\n\n-------------\n\n${document.getElementById('replyMessage').value}`
+                );
+                window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+                closeReplyModal();
+                showAlert('تم فتح بريدك الإلكتروني لإرسال الرد', 'success');
+            });
+
+            window.deleteMessage = function (id) {
+                const messages = getMessages();
+                const msg = messages.find(m => m.id === id);
+                if (!msg) return;
+                document.getElementById('confirmMessage').textContent = `هل أنت متأكد من حذف الرسالة من ${msg.name}؟`;
+                pendingUserAction = { action: 'deleteMessage', messageId: id };
+                document.getElementById('confirmModal').classList.add('show');
+            };
+
+            // ========== إدارة المشاريع ==========
+            function renderProjects() {
+                const projects = getProjects();
+                const tbody = document.getElementById('projectsTableBody');
+                tbody.innerHTML = '';
+                projects.forEach(p => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><img src="${p.image}" width="50" height="50" style="border-radius:10px; object-fit:cover;"></td>
+                        <td>${p.title}</td>
+                        <td>${Array.isArray(p.tech) ? p.tech.join(', ') : p.tech}</td>
+                        <td><span class="status-badge" style="background:${p.status === 'active' ? '#10b981' : p.status === 'completed' ? '#2563eb' : '#f59e0b'}">${p.status === 'active' ? 'نشط' : p.status === 'completed' ? 'مكتمل' : 'معلق'}</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn edit-btn" onclick="openEditProjectModal(${p.id})"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn delete-btn" onclick="deleteProject(${p.id})"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            window.openAddProjectModal = function () {
+                document.getElementById('projectModalTitle').textContent = 'إضافة مشروع جديد';
+                document.getElementById('projectForm').reset();
+                document.getElementById('projectId').value = '';
+                document.getElementById('projectModal').classList.add('show');
+            };
+
+            window.openEditProjectModal = function (id) {
+                const project = getProjects().find(p => p.id === id);
+                if (!project) return;
+                document.getElementById('projectModalTitle').textContent = 'تعديل المشروع';
+                document.getElementById('projectId').value = project.id;
+                document.getElementById('projectTitle').value = project.title;
+                document.getElementById('projectDesc').value = project.description;
+                document.getElementById('projectImage').value = project.image;
+                document.getElementById('projectTech').value = Array.isArray(project.tech) ? project.tech.join(', ') : project.tech;
+                document.getElementById('projectStatus').value = project.status;
+                document.getElementById('projectModal').classList.add('show');
+            };
+
+            window.closeProjectModal = function () {
+                document.getElementById('projectModal').classList.remove('show');
+            };
+
+            document.getElementById('projectForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const id = document.getElementById('projectId').value;
+                const projects = getProjects();
+                const title = document.getElementById('projectTitle').value.trim();
+                const description = document.getElementById('projectDesc').value.trim();
+                const image = document.getElementById('projectImage').value.trim();
+                const tech = document.getElementById('projectTech').value.split(',').map(t => t.trim());
+                const status = document.getElementById('projectStatus').value;
+
+                if (id) {
+                    const proj = projects.find(p => p.id == id);
+                    if (proj) {
+                        proj.title = title;
+                        proj.description = description;
+                        proj.image = image;
+                        proj.tech = tech;
+                        proj.status = status;
+                    }
+                    showAlert('تم تحديث المشروع', 'success');
+                } else {
+                    const newProj = { id: Date.now(), title, description, image, tech, status };
+                    projects.push(newProj);
+                    showAlert('تم إضافة المشروع', 'success');
+                }
+                saveProjects(projects);
+                renderProjects();
+                updateStats();
+                closeProjectModal();
+            });
+
+            window.deleteProject = function (id) {
+                const projects = getProjects();
+                const proj = projects.find(p => p.id === id);
+                if (!proj) return;
+                document.getElementById('confirmMessage').textContent = `هل أنت متأكد من حذف المشروع ${proj.title}؟`;
+                pendingUserAction = { action: 'deleteProject', projectId: id };
+                document.getElementById('confirmModal').classList.add('show');
+            };
+
+            // ========== سجل النشاطات ==========
+            function renderActivities() {
+                const activities = getActivities();
+                const tbody = document.getElementById('activityTableBody');
+                tbody.innerHTML = '';
+                activities.slice().reverse().forEach(act => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${act.user}</td>
+                        <td>${act.action}</td>
+                        <td>${act.details}</td>
+                        <td>${act.date}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // ========== الإعدادات ==========
+            document.getElementById('settingsForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                localStorage.setItem('siteName', document.getElementById('siteName').value);
+                localStorage.setItem('notificationEmail', document.getElementById('notificationEmail').value);
+                localStorage.setItem('defaultTheme', document.getElementById('defaultTheme').value);
+                showAlert('تم حفظ الإعدادات', 'success');
+            });
+
+            // ========== نظام الإشعارات ==========
+            function loadNotifications() {
+                const messages = getMessages();
+                const users = getUsers();
+                const notifications = [];
+
+                const unreadMessages = messages.filter(m => !m.read);
+                unreadMessages.slice(0, 3).forEach(msg => {
+                    notifications.push({
+                        id: msg.id,
+                        type: 'message',
+                        title: `رسالة جديدة من ${msg.name}`,
+                        time: msg.date,
+                        read: false,
+                        data: msg
+                    });
+                });
+
+                if (users.length > 0) {
+                    const latestUser = users[users.length - 1];
+                    notifications.push({
+                        id: 'user-' + latestUser.id,
+                        type: 'user',
+                        title: `مستخدم جديد: ${latestUser.fullname}`,
+                        time: latestUser.createdAt ? new Date(latestUser.createdAt).toLocaleString('ar-EG') : new Date().toLocaleString('ar-EG'),
+                        read: true,
+                        data: latestUser
+                    });
+                }
+
+                return notifications;
+            }
+
+            function renderNotifications() {
+                const list = document.getElementById('notificationsList');
+                const notifications = loadNotifications();
+                const count = notifications.filter(n => !n.read).length;
+
+                const bell = document.getElementById('notificationsBell');
+                if (count > 0) {
+                    bell.classList.add('has-new');
+                } else {
+                    bell.classList.remove('has-new');
+                }
+
+                document.getElementById('notificationCount').textContent = count;
+
+                if (notifications.length === 0) {
+                    list.innerHTML = '<div class="no-notifications">لا توجد إشعارات</div>';
+                    return;
+                }
+
+                list.innerHTML = notifications.map(n => `
+                    <div class="notification-item ${n.read ? '' : 'unread'}" data-id="${n.id}" data-type="${n.type}">
+                        <div class="notification-icon" style="background: ${n.type === 'message' ? '#2563eb' : '#10b981'}">
+                            <i class="fas fa-${n.type === 'message' ? 'envelope' : 'user-plus'}"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">${n.title}</div>
+                            <div class="notification-time">${n.time}</div>
+                        </div>
+                    </div>
+                `).join('');
+
+                document.querySelectorAll('.notification-item').forEach(item => {
+                    item.addEventListener('click', function () {
+                        const id = this.dataset.id;
+                        const type = this.dataset.type;
+                        if (type === 'message') {
+                            const msgId = parseInt(id);
+                            viewMessage(msgId);
+                        } else if (type === 'user') {
+                            showSection('users');
+                        }
+                    });
+                });
+            }
+
+            document.getElementById('markAllRead').addEventListener('click', function (e) {
+                e.stopPropagation();
+                const messages = getMessages();
+                messages.forEach(m => m.read = true);
+                saveMessages(messages);
+                renderMessages();
+                renderNotifications();
+                showAlert('تم تحديد جميع الرسائل كمقروءة', 'success');
+            });
+
+            // ========== معالج التأكيد الموحد ==========
+            document.getElementById('confirmYes').addEventListener('click', function () {
+                if (pendingUserAction) {
+                    if (pendingUserAction.action === 'deleteUser') {
+                        let users = getUsers().filter(u => u.id !== pendingUserAction.userId);
+                        saveUsers(users);
+                        renderUsers();
+                        updateStats();
+                        renderNotifications();
+                        showAlert('تم حذف المستخدم', 'success');
+                    } else if (pendingUserAction.action === 'deleteMessage') {
+                        let messages = getMessages().filter(m => m.id !== pendingUserAction.messageId);
+                        saveMessages(messages);
+                        renderMessages();
+                        renderNotifications();
+                        showAlert('تم حذف الرسالة', 'success');
+                    } else if (pendingUserAction.action === 'deleteProject') {
+                        let projects = getProjects().filter(p => p.id !== pendingUserAction.projectId);
+                        saveProjects(projects);
+                        renderProjects();
+                        showAlert('تم حذف المشروع', 'success');
+                    } else if (pendingUserAction.userId) {
+                        const { userId, newRole } = pendingUserAction;
+                        const users = getUsers();
+                        const user = users.find(u => u.id === userId);
+                        if (user) {
+                            user.role = newRole;
+                            saveUsers(users);
+                            renderUsers();
+                            const roleNames = { admin: 'مدير', moderator: 'مشرف', user: 'مستخدم' };
+                            showAlert(`تم تغيير دور ${user.fullname} إلى ${roleNames[newRole]}`, 'success');
+                        }
+                    }
+                    pendingUserAction = null;
+                }
+                document.getElementById('confirmModal').classList.remove('show');
+            });
+
+            document.getElementById('confirmNo').addEventListener('click', function () {
+                pendingUserAction = null;
+                document.getElementById('confirmModal').classList.remove('show');
+            });
+
+            document.getElementById('confirmModal').addEventListener('click', function (e) {
+                if (e.target === this) {
+                    pendingUserAction = null;
+                    this.classList.remove('show');
+                }
+            });
+
+            // ========== تسجيل الخروج ==========
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+
+            // ========== بدء التشغيل ==========
+            initCharts();
+            renderUsers();
+            renderMessages();
+            renderProjects();
+            renderActivities();
+            renderNotifications();
+            updateStats();
+        })();
+    </script>
+    
+</body>
+
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء حساب جديد</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(-45deg, #667eea, #764ba2, #6b8cff, #a463f5);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            padding: 20px;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* البطاقة الرئيسية */
+        .register-card {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 30px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.2);
+            width: 100%;
+            max-width: 550px;
+            padding: 50px 40px;
+            text-align: center;
+            animation: fadeInUp 0.8s ease-out;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: 2;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        h2 {
+            color: white;
+            margin-bottom: 30px;
+            font-weight: 600;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* مجموعة الإدخال */
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .input-group i {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.8);
+            font-size: 1.2rem;
+            transition: all 0.3s;
+            z-index: 1;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 16px 50px 16px 20px;
+            background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 60px;
+            font-size: 1rem;
+            color: white;
+            transition: all 0.3s;
+            outline: none;
+        }
+        .input-group input::placeholder {
+            color: rgba(255,255,255,0.7);
+            transition: opacity 0.3s;
+        }
+        .input-group input:focus {
+            border-color: white;
+            background: rgba(255,255,255,0.25);
+            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+        }
+        .input-group input:focus + i {
+            color: white;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        /* زر التسجيل */
+        .register-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 60px;
+            background: white;
+            color: #667eea;
+            font-size: 1.3rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .register-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(102, 126, 234, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .register-btn:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+        .register-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        .register-btn i {
+            transition: transform 0.3s;
+        }
+        .register-btn:hover i {
+            transform: translateX(-5px);
+        }
+
+        /* رسائل الخطأ والنجاح */
+        .error, .success {
+            margin-top: 15px;
+            font-weight: 600;
+            padding: 10px;
+            border-radius: 50px;
+            display: none;
+        }
+        .error {
+            background: rgba(255, 200, 200, 0.3);
+            color: #ffdddd;
+            border: 1px solid #ffcccc;
+        }
+        .success {
+            background: rgba(76, 175, 80, 0.3);
+            color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error i, .success i {
+            margin-left: 8px;
+        }
+
+        /* رابط تسجيل الدخول */
+        .login-link {
+            margin-top: 25px;
+            color: white;
+        }
+        .login-link a {
+            color: white;
+            font-weight: 700;
+            text-decoration: none;
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+        .login-link a:hover {
+            border-bottom-color: white;
+        }
+
+        /* أيقونات عائمة */
+        .floating-icons {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .floating-icons i {
+            position: absolute;
+            color: rgba(255,255,255,0.1);
+            font-size: 2rem;
+            animation: float 6s linear infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-icons" id="floatingIcons"></div>
+
+    <div class="register-card">
+        <div class="logo">مرحباً بك</div>
+        <h2>إنشاء حساب جديد</h2>
+
+        <form id="registerForm">
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="fullname" placeholder="الاسم الكامل" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-at"></i>
+                <input type="text" id="username" placeholder="اسم المستخدم" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="email" placeholder="البريد الإلكتروني" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-phone"></i>
+                <input type="tel" id="phone" placeholder="رقم الهاتف" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password" placeholder="كلمة المرور" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="confirm" placeholder="تأكيد كلمة المرور" required>
+            </div>
+
+            <button type="submit" class="register-btn">
+                <span>تسجيل</span>
+                <i class="fas fa-arrow-left"></i>
+            </button>
+
+            <div id="errorMsg" class="error"></div>
+            <div id="successMsg" class="success"></div>
+        </form>
+
+        <div class="login-link">
+            لديك حساب؟ <a href="login.html">تسجيل دخول</a>
+        </div>
+    </div>
+
+    <script src="script (2).js"></script>
+    <script>
+        // إنشاء أيقونات عائمة
+        function createFloatingIcons() {
+            const container = document.getElementById('floatingIcons');
+            const icons = ['fa-star', 'fa-circle', 'fa-square', 'fa-heart', 'fa-moon', 'fa-sun', 'fa-cloud'];
+            for (let i = 0; i < 20; i++) {
+                const icon = document.createElement('i');
+                icon.className = `fas ${icons[Math.floor(Math.random() * icons.length)]}`;
+                icon.style.left = Math.random() * 100 + '%';
+                icon.style.animationDuration = Math.random() * 10 + 5 + 's';
+                icon.style.animationDelay = Math.random() * 5 + 's';
+                icon.style.fontSize = Math.random() * 30 + 10 + 'px';
+                container.appendChild(icon);
+            }
+        }
+        createFloatingIcons();
+
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const fullname = document.getElementById('fullname').value.trim();
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const confirm = document.getElementById('confirm').value.trim();
+            const errorMsg = document.getElementById('errorMsg');
+            const successMsg = document.getElementById('successMsg');
+
+            // إخفاء الرسائل السابقة
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+
+            if (password !== confirm) {
+                errorMsg.innerHTML = '<i class="fas fa-times-circle"></i> كلمة المرور غير متطابقة';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            const users = getUsers();
+            if (users.some(u => u.username === username || u.email === email)) {
+                errorMsg.innerHTML = '<i class="fas fa-times-circle"></i> اسم المستخدم أو البريد موجود مسبقاً';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            // محاكاة إرسال رمز التحقق
+            const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+            sessionStorage.setItem('pendingUser', JSON.stringify({
+                fullname, username, email, phone, password,
+                verificationCode,
+                role: 'user'
+            }));
+
+            successMsg.innerHTML = '<i class="fas fa-check-circle"></i> تم إرسال رمز التحقق إلى هاتفك';
+            successMsg.style.display = 'block';
+
+            // تأخير التوجيه لعرض الرسالة
+            setTimeout(() => {
+                window.location.href = 'verify.html';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
