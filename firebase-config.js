@@ -1,11 +1,13 @@
 // ========== إعدادات Firebase ==========
 const firebaseConfig = {
-    apiKey: "AIzaSyA...",               // استبدل
-    authDomain: "your-project.firebaseapp.com",
-    projectId: "your-project",
-    storageBucket: "your-project.appspot.com",
-    messagingSenderId: "123456789",
-    appId: "1:123456789:web:abc123"
+    apiKey: "AIzaSyBygVOgLelAsR0k0MiH6CoQAAuVPKX", // استبدل
+     authDomain: "myproject-b6353.firebaseapp.com",
+           
+                projectId: "myproject-b6353",
+                storageBucket: "myproject-b6353.firebasestorage.app",
+                messagingSenderId: "339621647444",
+                appId: "1:339621647444:web:8e0becdac3a46350d549c1"
+            };
 };
 
 // تهيئة Firebase
